@@ -1,15 +1,18 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
 
-function createRandomPost() {
+import Main from "./components/Main/Main";
+import Header from "./components/Header/Header";
+import Archive from "./components/Archive/Archive";
+import Footer from "./components/Footer/Footer.jsx";
+
+export function createRandomPost() {
   return {
     title: `${faker.hacker.adjective()} ${faker.hacker.noun()}`,
     body: faker.hacker.phrase(),
   };
 }
-const PostContext = createContext();
-
-// console.log(PostContext);
+export const PostContext = createContext();
 
 function App() {
   const [posts, setPosts] = useState(() =>
@@ -45,156 +48,165 @@ function App() {
   );
 
   return (
-    <section>
-      <button
-        onClick={() => setIsFakeDark((isFakeDark) => !isFakeDark)}
-        className="btn-fake-dark-mode"
-      >
-        {isFakeDark ? "☀️" : "🌙"}
-      </button>
+    <PostContext.Provider
+      value={{
+        posts: searchedPosts,
+        onAddPost: handleAddPost,
+        onClearPosts: handleClearPosts,
+        searchQuery,
+        setSearchQuery,
+      }}
+    >
+      <section>
+        <button
+          onClick={() => setIsFakeDark((isFakeDark) => !isFakeDark)}
+          className="btn-fake-dark-mode"
+        >
+          {isFakeDark ? "☀️" : "🌙"}
+        </button>
 
-      <Header
-      // posts={searchedPosts}
-      // onClearPosts={handleClearPosts}
-      // searchQuery={searchQuery}
-      // setSearchQuery={setSearchQuery}
-      />
-      <Main posts={searchedPosts} onAddPost={handleAddPost} />
-      <Archive onAddPost={handleAddPost} />
-      <Footer />
-    </section>
+        <Header />
+        <Main />
+        <Archive />
+        <Footer />
+      </section>
+    </PostContext.Provider>
   );
 }
 
-function Header() {
-  const { onClearPosts } = useContext(PostContext);
-  console.log(onClearPosts);
+// function Header() {
+//   const { onClearPosts } = useContext(PostContext);
+//   console.log(onClearPosts);
 
-  return (
-    <header>
-      <h1>
-        <span>⚛️</span>The Atomic Blog
-      </h1>
-      <div>
-        <Results />
-        <SearchPosts />
-        <button onClick={onClearPosts}>Clear posts</button>
-      </div>
-    </header>
-  );
-}
+//   return (
+//     <header>
+//       <h1>
+//         <span>⚛️</span>The Atomic Blog
+//       </h1>
+//       <div>
+//         <Results />
+//         <SearchPosts />
+//         <button onClick={onClearPosts}>Clear posts</button>
+//       </div>
+//     </header>
+//   );
+// }
 
-function SearchPosts({ searchQuery, setSearchQuery }) {
-  // const { searchQuery, setSearchQuery } = useContext(PostContext);
-  return (
-    <input
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-      placeholder="Search posts..."
-    />
-  );
-}
+// function SearchPosts() {
+//   const { searchQuery, setSearchQuery } = useContext(PostContext);
+//   return (
+//     <input
+//       value={searchQuery}
+//       onChange={(e) => setSearchQuery(e.target.value)}
+//       placeholder="Search posts..."
+//     />
+//   );
+// }
 
-function Results({ posts }) {
-  // const { posts } = useContext(PostContext);
+// function Results() {
+//   const { posts } = useContext(PostContext);
 
-  return <p>🚀 {posts.length} atomic posts found</p>;
-}
+//   return <p>🚀 {posts.length} atomic posts found</p>;
+// }
 
-function Main({ posts, onAddPost }) {
-  return (
-    <main>
-      <FormAddPost onAddPost={onAddPost} />
-      <Posts posts={posts} />
-    </main>
-  );
-}
+// function Main() {
+//   return (
+//     <main>
+//       <FormAddPost />
+//       <Posts />
+//     </main>
+//   );
+// }
 
-function Posts({ posts }) {
-  return (
-    <section>
-      <List posts={posts} />
-    </section>
-  );
-}
+// function Posts() {
+//   return (
+//     <section>
+//       <List />
+//     </section>
+//   );
+// }
 
-function FormAddPost({ onAddPost }) {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+// function FormAddPost() {
+//   const { onAddPost } = useContext(PostContext);
 
-  const handleSubmit = function (e) {
-    e.preventDefault();
-    if (!body || !title) return;
-    onAddPost({ title, body });
-    setTitle("");
-    setBody("");
-  };
+//   const [title, setTitle] = useState("");
+//   const [body, setBody] = useState("");
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Post title"
-      />
-      <textarea
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder="Post body"
-      />
-      <button>Add post</button>
-    </form>
-  );
-}
+//   const handleSubmit = function (e) {
+//     e.preventDefault();
+//     if (!body || !title) return;
+//     onAddPost({ title, body });
+//     setTitle("");
+//     setBody("");
+//   };
 
-function List({ posts }) {
-  return (
-    <ul>
-      {posts.map((post, i) => (
-        <li key={i}>
-          <h3>{post.title}</h3>
-          <p>{post.body}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
+//   return (
+//     <form onSubmit={handleSubmit}>
+//       <input
+//         value={title}
+//         onChange={(e) => setTitle(e.target.value)}
+//         placeholder="Post title"
+//       />
+//       <textarea
+//         value={body}
+//         onChange={(e) => setBody(e.target.value)}
+//         placeholder="Post body"
+//       />
+//       <button>Add post</button>
+//     </form>
+//   );
+// }
 
-function Archive({ onAddPost }) {
-  // Here we don't need the setter function. We're only using state to store these posts because the callback function passed into useState (which generates the posts) is only called once, on the initial render. So we use this trick as an optimization technique, because if we just used a regular variable, these posts would be re-created on every render. We could also move the posts outside the components, but I wanted to show you this trick 😉
-  const [posts] = useState(() =>
-    // 💥 WARNING: This might make your computer slow! Try a smaller `length` first
-    Array.from({ length: 10000 }, () => createRandomPost())
-  );
+// function List() {
+//   const { posts } = useContext(PostContext);
+//   return (
+//     <ul>
+//       {posts.map((post, i) => (
+//         <li key={i}>
+//           <h3>{post.title}</h3>
+//           <p>{post.body}</p>
+//         </li>
+//       ))}
+//     </ul>
+//   );
+// }
 
-  const [showArchive, setShowArchive] = useState(false);
+// function Archive() {
+//   const { onAddPost } = useContext(PostContext);
+//   // Here we don't need the setter function. We're only using state to store these posts because the callback function passed into useState (which generates the posts) is only called once, on the initial render. So we use this trick as an optimization technique, because if we just used a regular variable, these posts would be re-created on every render. We could also move the posts outside the components, but I wanted to show you this trick 😉
+//   const [posts] = useState(() =>
+//     // 💥 WARNING: This might make your computer slow! Try a smaller `length` first
+//     Array.from({ length: 10000 }, () => createRandomPost())
+//   );
 
-  return (
-    <aside>
-      <h2>Post archive</h2>
-      <button onClick={() => setShowArchive((s) => !s)}>
-        {showArchive ? "Hide archive posts" : "Show archive posts"}
-      </button>
+//   const [showArchive, setShowArchive] = useState(false);
 
-      {showArchive && (
-        <ul>
-          {posts.map((post, i) => (
-            <li key={i}>
-              <p>
-                <strong>{post.title}:</strong> {post.body}
-              </p>
-              <button onClick={() => onAddPost(post)}>Add as new post</button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </aside>
-  );
-}
+//   return (
+//     <aside>
+//       <h2>Post archive</h2>
+//       <button onClick={() => setShowArchive((s) => !s)}>
+//         {showArchive ? "Hide archive posts" : "Show archive posts"}
+//       </button>
 
-function Footer() {
-  return <footer>&copy; by The Atomic Blog ✌️</footer>;
-}
+//       {showArchive && (
+//         <ul>
+//           {posts.map((post, i) => (
+//             <li key={i}>
+//               <p>
+//                 <strong>{post.title}:</strong> {post.body}
+//               </p>
+//               <button onClick={() => onAddPost(post)}>Add as new post</button>
+//             </li>
+//           ))}
+//         </ul>
+//       )}
+//     </aside>
+//   );
+// }
+
+// function Footer() {
+//   return <footer>&copy; by The Atomic Blog ✌️</footer>;
+// }
 
 export default App;
-//18/224
+//18/225
